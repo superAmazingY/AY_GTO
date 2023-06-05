@@ -418,5 +418,113 @@ int PokerHand::compareHands(const PokerHand& hand1, const PokerHand& hand2) {
     }
 }
 
+std::vector<Card> PokerHand::getBestHand(const PokerHand& hand1, const PokerHand& hand2) {
+    std::vector<Card> allCards;
+    allCards.reserve(7);
 
+    // 将手中的两张牌和公共五张牌都添加到向量中
+    for (int i = 0; i < 2; ++i) {
+        allCards.push_back(hand1.getCardAtPosition(i));
+    }
+    for (int i = 0; i < 5; ++i) {
+        allCards.push_back(hand2.getCardAtPosition(i));
+    }
 
+    // 尝试所有可能的组合并找到最佳手牌
+    std::vector<Card> bestHand;
+    std::vector<Card> tempHand;
+
+    // 遍历所有的组合
+    for (int i = 0; i < 3; ++i) {
+        for (int j = i + 1; j < 4; ++j) {
+            for (int k = j + 1; k < 5; ++k) {
+                for (int l = k + 1; l < 6; ++l) {
+                    for (int m = l + 1; m < 7; ++m) {
+                        tempHand.clear();
+                        // 将当前组合中的五张牌添加到临时手牌中
+                        tempHand.push_back(allCards[i]);
+                        tempHand.push_back(allCards[j]);
+                        tempHand.push_back(allCards[k]);
+                        tempHand.push_back(allCards[l]);
+                        tempHand.push_back(allCards[m]);
+                        // 如果临时手牌是更好的手牌，则更新最佳手牌
+                        if (isBetterHand(tempHand, bestHand)) {
+                            bestHand = tempHand;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return bestHand;
+}
+
+bool PokerHand::isBetterHand(const std::vector<Card>& hand1, const std::vector<Card>& hand2) const {
+    PokerHand pokerHand1(hand1);
+    PokerHand pokerHand2(hand2);
+
+    HandType type1 = pokerHand1.getHandType();
+    HandType type2 = pokerHand2.getHandType();
+
+    if (type1 > type2) {
+        return true;
+    } else if (type1 < type2) {
+        return false;
+    }
+    if (type1 > type2) {
+        return true;
+    } else if (type1 < type2) {
+        return false;
+    }
+    // 如果手牌类型相同，根据不同的牌型规则进行比较
+    switch (type1) {
+        case HandType::STRAIGHT_FLUSH:
+        case HandType::STRAIGHT:
+        case HandType::FLUSH:
+        case HandType::HIGH_CARD:
+            // 直接比较最高牌的牌值
+            return hand1[0].getRank() > hand2[0].getRank();
+        case HandType::FOUR_OF_A_KIND:
+        case HandType::THREE_OF_A_KIND:
+            // 比较牌值较大的那组牌的牌值
+            return hand1[2].getRank() > hand2[2].getRank();
+        case HandType::FULL_HOUSE:
+        case HandType::TWO_PAIR:
+            // 先比较三张牌的牌值，再比较两张牌的牌值
+            if (hand1[2].getRank() != hand2[2].getRank()) {
+                return hand1[2].getRank() > hand2[2].getRank();
+            } else {
+                return hand1[0].getRank() > hand2[0].getRank();
+            }
+
+        case HandType::PAIR:
+            // 先比较对子的牌值，再比较剩余的三张牌的牌值
+            if (hand1[1].getRank() != hand2[1].getRank()) {
+                return hand1[1].getRank() > hand2[1].getRank();
+            } else {
+                for (int i = 4; i >= 0; --i) {
+                    if (hand1[i].getRank() != hand1[1].getRank() && hand2[i].getRank() != hand2[1].getRank()) {
+                        if (hand1[i].getRank() != hand2[i].getRank()) {
+                            return hand1[i].getRank() > hand2[i].getRank();
+                        }
+                    }
+                }
+            }
+            return false;
+
+        default:
+            // 无效手牌类型，可以根据实际情况进行处理
+            return false;
+    }
+}
+
+Card PokerHand::getCardAtPosition(int position) const {
+    // 根据实际情况实现获取指定位置的牌的逻辑
+    // 返回对应位置的牌
+    if (position < 0 || position >= hand.size()) {
+        // 位置无效，可以抛出异常或者进行其他处理
+        // 这里假设返回一个无效的牌
+        return Card(Suit::UNKNOWN, Rank::UNKNOWN);
+    }
+    return hand[position];
+}

@@ -35,10 +35,14 @@ public:
     [[nodiscard]] bool isFullHouse() const;
     [[nodiscard]] bool isFourOfAKind() const;
     [[nodiscard]] bool isStraightFlush() const;
+    std::vector<Card> getBestHand(const PokerHand& hand1, const PokerHand& hand2);
+
     void printHandType() const;
 
 private:
     std::vector<Card> hand;
+    bool isBetterHand(const std::vector<Card>& hand1, const std::vector<Card>& hand2) const;
+    Card getCardAtPosition(int position) const;
 };
 
 #endif  // POKERHAND_H

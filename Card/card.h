@@ -7,7 +7,8 @@ enum class Suit {
     CLUBS,
     DIAMONDS,
     HEARTS,
-    SPADES
+    SPADES,
+    UNKNOWN
 };
 
 enum class Rank {

@@ -9,16 +9,25 @@ int main() {
 
     std::vector<Card> hand1;
     std::vector<Card> hand2;
+    std::vector<Card> hand3;
 
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 2; i++) {
         Card card1 = deck.dealCard();
         hand1.push_back(card1);
         std::cout << "Dealt card 1: " << card1.getRankString() << " of " << card1.getSuitString() << std::endl;
-
+    }
+    for (int i = 0; i<2; i++) {
         Card card2 = deck.dealCard();
         hand2.push_back(card2);
         std::cout << "Dealt card 2: " << card2.getRankString() << " of " << card2.getSuitString() << std::endl;
     }
+
+    for (int i = 0; i<5; i++) {
+        Card card3 = deck.dealCard();
+        hand3.push_back(card3);
+        std::cout << "Dealt card 3: " << card3.getRankString() << " of " << card3.getSuitString() << std::endl;
+    }
+
 
     PokerHand pokerHand1(hand1);
     PokerHand pokerHand2(hand2);
@@ -46,6 +55,3 @@ int main() {
     }
     return 0;
 }
-
-
-
