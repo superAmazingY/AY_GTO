@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Card/card.h"
 #include "Deck/deck.h"
 #include "pokerHand/pokerhand.h"
@@ -32,6 +33,18 @@ int main() {
         std::cout << "Dealt card 3: " << card3.getRankString() << " of " << card3.getSuitString() << std::endl;
     }
 
+    // 打印发牌后的手牌内容
+    std::cout << "Player 1 cards:";
+    for (const Card& card : player1) {
+        std::cout << " " << card.getRankString() << " of " << card.getSuitString();
+    }
+    std::cout << std::endl;
+
+    std::cout << "Player 2 cards:";
+    for (const Card& card : player2) {
+        std::cout << " " << card.getRankString() << " of " << card.getSuitString();
+    }
+    std::cout << std::endl;
 
     PokerHand pokerHand1(player1);
     PokerHand pokerHand2(player2);
@@ -40,11 +53,12 @@ int main() {
     std::vector<Card> player1BestHand = PokerHand::getBestHand(commonCard, player1);
     std::vector<Card> player2BestHand = PokerHand::getBestHand(commonCard, player2);
 
-    PokerHand pokerHand3(player1BestHand);
-    PokerHand pokerHand4(player2BestHand);
-    // 打印最佳牌型的类型
-    pokerHand3.printHandType();
-    pokerHand4.printHandType();
+    // 打印最佳手牌的类型
+    std::cout << "Player 1 best hand type: ";
+    PokerHand(player1BestHand).printHandType();
+
+    std::cout << "Player 2 best hand type: ";
+    PokerHand(player2BestHand).printHandType();
 
     // 比较手牌大小
     int result = PokerHand::compareHands(player1BestHand, player2BestHand);
@@ -56,5 +70,6 @@ int main() {
     } else {
         std::cout << "It's a tie!" << std::endl;
     }
+
     return 0;
 }

@@ -84,7 +84,7 @@ bool PokerHand::isFlush() const {
     // 同花：五张花色相同的牌
     // 逻辑：统计每个花色的牌的数量，如果有五张花色相同的牌，则为同花
     std::vector<Suit> suits;
-    for (const Card &card: hand) {
+/*    for (const Card &card: hand) {
         suits.push_back(card.getSuit());
     }
     for (const Card &card: hand) {
@@ -95,7 +95,7 @@ bool PokerHand::isFlush() const {
     }
     if (suits.size() != 5) {
         std::cerr << "Error: Number of suits in hand is not 5!" << std::endl;
-    }
+    }*/
     std::sort(suits.begin(), suits.end());
     for (int i = 0; i < suits.size() - 1; ++i) {
         if (suits[i] != suits[i + 1]) {
@@ -411,6 +411,34 @@ std::vector<Card> PokerHand::getBestHand(const std::vector<Card> &hand1, const s
     allCards.reserve(7);
 
     // 将手中的两张牌和公共五张牌都添加到向量中
+    for (const Card& card : hand1) {
+        allCards.push_back(card);
+    }
+    for (const Card& card : hand2) {
+        allCards.push_back(card);
+    }
+
+    //debug
+    std::cout << "Hand 1: ";
+    for (const Card& card : hand1) {
+        std::cout << card.getRankString() << " of " << card.getSuitString() << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Hand 2: ";
+    for (const Card& card : hand2) {
+        std::cout << card.getRankString() << " of " << card.getSuitString() << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "allCards : ";
+    for (const Card& card : allCards) {
+        std::cout << card.getRankString() << " of " << card.getSuitString() << " ";
+    }
+    std::cout << std::endl;
+
+
+    // 将手中的两张牌和公共五张牌都添加到向量中
     for (int i = 0; i < 2; ++i) {
         allCards.push_back(hand1[i]);
     }
@@ -452,6 +480,21 @@ bool PokerHand::isBetterHand(const std::vector<Card> &hand1, const std::vector<C
     PokerHand pokerHand1(hand1);
     PokerHand pokerHand2(hand2);
 
+    // debug
+    std::cout << "Comparing hand1 and hand2..." << std::endl;
+
+    std::cout << "Hand 1: ";
+    for (const Card& card : hand1) {
+        std::cout << card.getRankString() << " of " << card.getSuitString() << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Hand 2: ";
+    for (const Card& card : hand2) {
+        std::cout << card.getRankString() << " of " << card.getSuitString() << " ";
+    }
+    std::cout << std::endl;
+
     HandType type1 = pokerHand1.getHandType();
     HandType type2 = pokerHand2.getHandType();
 
@@ -460,11 +503,7 @@ bool PokerHand::isBetterHand(const std::vector<Card> &hand1, const std::vector<C
     } else if (type1 < type2) {
         return false;
     }
-    if (type1 > type2) {
-        return true;
-    } else if (type1 < type2) {
-        return false;
-    }
+
     // 如果手牌类型相同，根据不同的牌型规则进行比较
     switch (type1) {
         case HandType::STRAIGHT_FLUSH:
@@ -485,7 +524,6 @@ bool PokerHand::isBetterHand(const std::vector<Card> &hand1, const std::vector<C
             } else {
                 return hand1[0].getRank() > hand2[0].getRank();
             }
-
         case HandType::PAIR:
             // 先比较对子的牌值，再比较剩余的三张牌的牌值
             if (hand1[1].getRank() != hand2[1].getRank()) {
@@ -498,7 +536,8 @@ bool PokerHand::isBetterHand(const std::vector<Card> &hand1, const std::vector<C
                         }
                     }
                 }
+                // 如果两个手牌完全相同，则返回false
+                return false;
             }
-            return false;
     }
 }

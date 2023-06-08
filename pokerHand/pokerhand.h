@@ -34,8 +34,6 @@ public:
     [[nodiscard]] bool isFourOfAKind() const;
     [[nodiscard]] bool isStraightFlush() const;
     static std::vector<Card> getBestHand(const std::vector<Card>& hand1, const std::vector<Card>& hand2);
-
-
     void printHandType() const;
 
 private:
