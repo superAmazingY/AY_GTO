@@ -22,9 +22,7 @@ public:
     explicit PokerHand(const std::vector<Card>& hand);
 
     [[nodiscard]] HandType getHandType() const;
-    [[nodiscard]] Rank getHighestRank() const;
-    [[nodiscard]] Rank getRankAtPosition(int position) const;
-    static int compareHands(const PokerHand& hand1, const PokerHand& hand2);
+    static int compareHands(const std::vector<Card>& hand1, const std::vector<Card>& hand2);
 
     [[nodiscard]] bool isHighCard() const;
     [[nodiscard]] bool isPair() const;
@@ -35,14 +33,14 @@ public:
     [[nodiscard]] bool isFullHouse() const;
     [[nodiscard]] bool isFourOfAKind() const;
     [[nodiscard]] bool isStraightFlush() const;
-    std::vector<Card> getBestHand(const PokerHand& hand1, const PokerHand& hand2);
+    static std::vector<Card> getBestHand(const std::vector<Card>& hand1, const std::vector<Card>& hand2);
+
 
     void printHandType() const;
 
 private:
     std::vector<Card> hand;
-    bool isBetterHand(const std::vector<Card>& hand1, const std::vector<Card>& hand2) const;
-    Card getCardAtPosition(int position) const;
+    static bool isBetterHand(const std::vector<Card>& hand1, const std::vector<Card>& hand2) ;
 };
 
 #endif  // POKERHAND_H

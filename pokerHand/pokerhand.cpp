@@ -1,19 +1,20 @@
 #include <algorithm>
 #include "pokerhand.h"
 
-PokerHand::PokerHand(const std::vector<Card>& hand) : hand(hand) {}
+PokerHand::PokerHand(const std::vector<Card> &hand) : hand(hand) {}
 
 bool PokerHand::isHighCard() const {
     // 高牌：没有符合其他牌型的组合
     // 逻辑：排除其他牌型的情况即可
-    return !isPair() && !isTwoPair() && !isThreeOfAKind() && !isStraight() && !isFlush() && !isFullHouse() && !isFourOfAKind() && !isStraightFlush();
+    return !isPair() && !isTwoPair() && !isThreeOfAKind() && !isStraight() && !isFlush() && !isFullHouse() &&
+           !isFourOfAKind() && !isStraightFlush();
 }
 
 bool PokerHand::isPair() const {
     // 对子：有两张相同点数的牌
     // 逻辑：统计每个点数的牌的数量，如果有两张点数相同的牌，则为对子
     std::vector<Rank> ranks;
-    for (const Card& card : hand) {
+    for (const Card &card: hand) {
         ranks.push_back(card.getRank());
     }
     std::sort(ranks.begin(), ranks.end());
@@ -30,7 +31,7 @@ bool PokerHand::isTwoPair() const {
     // 两对：有两个对子
     // 逻辑：统计每个点数的牌的数量，如果有两个点数各不相同的对子，则为两对
     std::vector<Rank> ranks;
-    for (const Card& card : hand) {
+    for (const Card &card: hand) {
         ranks.push_back(card.getRank());
     }
     std::sort(ranks.begin(), ranks.end());
@@ -49,7 +50,7 @@ bool PokerHand::isThreeOfAKind() const {
     // 三条：有三张相同点数的牌
     // 逻辑：统计每个点数的牌的数量，如果有一张点数相同的牌出现三次，则为三条
     std::vector<Rank> ranks;
-    for (const Card& card : hand) {
+    for (const Card &card: hand) {
         ranks.push_back(card.getRank());
     }
     std::sort(ranks.begin(), ranks.end());
@@ -66,7 +67,7 @@ bool PokerHand::isStraight() const {
     // 顺子：五张连续的牌（不考虑花色）
     // 逻辑：先将牌按点数排序，然后判断是否是连续的五张牌
     std::vector<Rank> ranks;
-    for (const Card& card : hand) {
+    for (const Card &card: hand) {
         ranks.push_back(card.getRank());
     }
     std::sort(ranks.begin(), ranks.end());
@@ -83,12 +84,20 @@ bool PokerHand::isFlush() const {
     // 同花：五张花色相同的牌
     // 逻辑：统计每个花色的牌的数量，如果有五张花色相同的牌，则为同花
     std::vector<Suit> suits;
-    for (const Card& card : hand) {
+    for (const Card &card: hand) {
         suits.push_back(card.getSuit());
     }
+    for (const Card &card: hand) {
+        Suit suit = card.getSuit();
+        if (suit != Suit::CLUBS && suit != Suit::DIAMONDS && suit != Suit::HEARTS && suit != Suit::SPADES) {
+            std::cerr << "Error: Invalid suit detected in hand!" << std::endl;
+        }
+    }
+    if (suits.size() != 5) {
+        std::cerr << "Error: Number of suits in hand is not 5!" << std::endl;
+    }
     std::sort(suits.begin(), suits.end());
-
-    for (size_t i = 0; i < suits.size() - 1; ++i) {
+    for (int i = 0; i < suits.size() - 1; ++i) {
         if (suits[i] != suits[i + 1]) {
             return false;
         }
@@ -100,7 +109,7 @@ bool PokerHand::isFullHouse() const {
     // 葫芦：三条+对子
     // 逻辑：通过对牌进行计数，检查是否有三张和两张点数相同的牌
     std::vector<Rank> ranks;
-    for (const Card& card : hand) {
+    for (const Card &card: hand) {
         ranks.push_back(card.getRank());
     }
     std::sort(ranks.begin(), ranks.end());
@@ -120,7 +129,7 @@ bool PokerHand::isFourOfAKind() const {
     // 四条：有四张相同点数的牌
     // 逻辑：统计每个点数的牌的数量，如果有一张点数相同的牌出现四次，则为四条
     std::vector<Rank> ranks;
-    for (const Card& card : hand) {
+    for (const Card &card: hand) {
         ranks.push_back(card.getRank());
     }
     std::sort(ranks.begin(), ranks.end());
@@ -197,29 +206,10 @@ HandType PokerHand::getHandType() const {
     return HandType::HIGH_CARD;
 }
 
-Rank PokerHand::getHighestRank() const {
-    Rank highestRank = Rank::UNKNOWN;
-    for (const Card& card : hand) {
-        if (card.getRank() > highestRank) {
-            highestRank = card.getRank();
-        }
-    }
-    return highestRank;
-}
-
-Rank PokerHand::getRankAtPosition(int position) const {
-    if (position < 0 || position >= hand.size()) {
-        // 处理无效位置的情况，例如越界等
-        // 在此处抛出异常或返回一个特定值
-    }
-    return hand[position].getRank();
-}
-
-
 // 比较两手牌的大小
-int PokerHand::compareHands(const PokerHand& hand1, const PokerHand& hand2) {
-    HandType handType1 = hand1.getHandType();
-    HandType handType2 = hand2.getHandType();
+int PokerHand::compareHands(const std::vector<Card> &hand1, const std::vector<Card> &hand2) {
+    HandType handType1 = PokerHand(hand1).getHandType();
+    HandType handType2 = PokerHand(hand2).getHandType();
 
     // 比较牌型的大小
     if (handType1 > handType2) {
@@ -232,8 +222,8 @@ int PokerHand::compareHands(const PokerHand& hand1, const PokerHand& hand2) {
             case HandType::HIGH_CARD: {
                 // 比较高牌的大小，按照最高的牌逐个比较
                 for (int i = 4; i >= 0; --i) {
-                    Rank rank1 = hand1.getRankAtPosition(i);
-                    Rank rank2 = hand2.getRankAtPosition(i);
+                    Rank rank1 = hand1[i].getRank();
+                    Rank rank2 = hand2[i].getRank();
                     if (rank1 > rank2) {
                         return 1;  // hand1胜出
                     } else if (rank1 < rank2) {
@@ -245,8 +235,8 @@ int PokerHand::compareHands(const PokerHand& hand1, const PokerHand& hand2) {
 
             case HandType::PAIR: {
                 // 比较对子的大小
-                Rank pair1 = hand1.getRankAtPosition(1);  // 获取对子的大小
-                Rank pair2 = hand2.getRankAtPosition(1);  // 获取对子的大小
+                Rank pair1 = hand1[1].getRank();  // 获取对子的大小
+                Rank pair2 = hand2[1].getRank();  // 获取对子的大小
                 if (pair1 > pair2) {
                     return 1;  // hand1胜出
                 } else if (pair1 < pair2) {
@@ -254,8 +244,8 @@ int PokerHand::compareHands(const PokerHand& hand1, const PokerHand& hand2) {
                 } else {
                     // 对子大小相同，比较剩余的高牌
                     for (int i = 4; i >= 0; --i) {
-                        Rank rank1 = hand1.getRankAtPosition(i);
-                        Rank rank2 = hand2.getRankAtPosition(i);
+                        Rank rank1 = hand1[i].getRank();
+                        Rank rank2 = hand2[i].getRank();
                         if (rank1 > rank2) {
                             return 1;  // hand1胜出
                         } else if (rank1 < rank2) {
@@ -268,63 +258,60 @@ int PokerHand::compareHands(const PokerHand& hand1, const PokerHand& hand2) {
 
             case HandType::TWO_PAIR: {
                 // 比较两对的大小
-                Rank highestPair1 = hand1.getRankAtPosition(3);  // 获取第一对的大小
-                Rank highestPair2 = hand2.getRankAtPosition(3);  // 获取第一对的大小
-                if (highestPair1 > highestPair2) {
-                    return 1;  // hand1胜出
-                } else if (highestPair1 < highestPair2) {
-                    return -1; // hand2胜出
-                } else {
-                    // 第一对大小相同，比较第二对
-                    Rank secondPair1 = hand1.getRankAtPosition(1);  // 获取第二对的大小
-                    Rank secondPair2 = hand2.getRankAtPosition(1);  // 获取第二对的大小
-                    if (secondPair1 > secondPair2) {
-                        return 1;  // hand1胜出
-                    } else if (secondPair1 < secondPair2) {
-                        return -1; // hand2胜出
-                    } else {
-                        // 两对大小都相同，比较最高的单张牌
-                        Rank kicker1 = hand1.getRankAtPosition(4);  // 获取最高的单张牌大小
-                        Rank kicker2 = hand2.getRankAtPosition(4);  // 获取最高的单张牌大小
-                        if (kicker1 > kicker2) {
-                            return 1;  // hand1胜出
-                        } else if (kicker1 < kicker2) {
-                            return -1; // hand2胜出
-                        } else {
-                            return 0;  // 平局
-                        }
-                    }
+                std::vector<Rank> ranks1;
+                std::vector<Rank> ranks2;
+
+                // 获取两对的大小并排序
+                for (int i = 0; i < 4; i += 2) {
+                    ranks1.push_back(hand1[i].getRank());
+                    ranks2.push_back(hand2[i].getRank());
                 }
+                std::sort(ranks1.rbegin(), ranks1.rend());
+                std::sort(ranks2.rbegin(), ranks2.rend());
+
+                // 比较较大的对子
+                if (ranks1[0] > ranks2[0]) {
+                    return 1;  // hand1胜出
+                } else if (ranks1[0] < ranks2[0]) {
+                    return -1; // hand2胜出
+                }
+
+                // 比较较小的对子
+                if (ranks1[1] > ranks2[1]) {
+                    return 1;  // hand1胜出
+                } else if (ranks1[1] < ranks2[1]) {
+                    return -1; // hand2胜出
+                }
+
+                // 对子相同，比较剩余的高牌
+                Rank kicker1 = hand1[4].getRank();
+                Rank kicker2 = hand2[4].getRank();
+                if (kicker1 > kicker2) {
+                    return 1;  // hand1胜出
+                } else if (kicker1 < kicker2) {
+                    return -1; // hand2胜出
+                }
+
+                return 0;  // 平局
             }
 
             case HandType::THREE_OF_A_KIND: {
                 // 比较三条的大小
-                Rank triplet1 = hand1.getRankAtPosition(2);  // 获取三条的大小
-                Rank triplet2 = hand2.getRankAtPosition(2);  // 获取三条的大小
-                if (triplet1 > triplet2) {
+                Rank three1 = hand1[2].getRank();  // 获取三条的大小
+                Rank three2 = hand2[2].getRank();  // 获取三条的大小
+                if (three1 > three2) {
                     return 1;  // hand1胜出
-                } else if (triplet1 < triplet2) {
+                } else if (three1 < three2) {
                     return -1; // hand2胜出
                 } else {
-                    // 三条大小相同，比较剩余两张牌的大小
-                    std::vector<Rank> remaining1;
-                    std::vector<Rank> remaining2;
-                    for (int i = 0; i < 5; ++i) {
-                        Rank rank1 = hand1.getRankAtPosition(i);
-                        Rank rank2 = hand2.getRankAtPosition(i);
-                        if (rank1 != triplet1) {
-                            remaining1.push_back(rank1);
-                        }
-                        if (rank2 != triplet2) {
-                            remaining2.push_back(rank2);
-                        }
-                    }
-                    std::sort(remaining1.rbegin(), remaining1.rend());
-                    std::sort(remaining2.rbegin(), remaining2.rend());
-                    for (int i = 0; i < 2; ++i) {
-                        if (remaining1[i] > remaining2[i]) {
+                    // 三条大小相同，比较剩余的高牌
+                    for (int i = 4; i >= 0; --i) {
+                        if (i == 2) continue;  // 跳过三条
+                        Rank rank1 = hand1[i].getRank();
+                        Rank rank2 = hand2[i].getRank();
+                        if (rank1 > rank2) {
                             return 1;  // hand1胜出
-                        } else if (remaining1[i] < remaining2[i]) {
+                        } else if (rank1 < rank2) {
                             return -1; // hand2胜出
                         }
                     }
@@ -333,12 +320,12 @@ int PokerHand::compareHands(const PokerHand& hand1, const PokerHand& hand2) {
             }
 
             case HandType::STRAIGHT: {
-                // 比较顺子的大小
-                Rank highestRank1 = hand1.getHighestRank();
-                Rank highestRank2 = hand2.getHighestRank();
-                if (highestRank1 > highestRank2) {
+                // 比较顺子的大小，只需比较最大的一张牌
+                Rank highCard1 = hand1[4].getRank();
+                Rank highCard2 = hand2[4].getRank();
+                if (highCard1 > highCard2) {
                     return 1;  // hand1胜出
-                } else if (highestRank1 < highestRank2) {
+                } else if (highCard1 < highCard2) {
                     return -1; // hand2胜出
                 } else {
                     return 0;  // 平局
@@ -348,8 +335,8 @@ int PokerHand::compareHands(const PokerHand& hand1, const PokerHand& hand2) {
             case HandType::FLUSH: {
                 // 比较同花的大小，按照最高的牌逐个比较
                 for (int i = 4; i >= 0; --i) {
-                    Rank rank1 = hand1.getRankAtPosition(i);
-                    Rank rank2 = hand2.getRankAtPosition(i);
+                    Rank rank1 = hand1[i].getRank();
+                    Rank rank2 = hand2[i].getRank();
                     if (rank1 > rank2) {
                         return 1;  // hand1胜出
                     } else if (rank1 < rank2) {
@@ -361,15 +348,15 @@ int PokerHand::compareHands(const PokerHand& hand1, const PokerHand& hand2) {
 
             case HandType::FULL_HOUSE: {
                 // 比较葫芦的大小
-                Rank triplet1 = hand1.getRankAtPosition(2);  // 获取三条的大小
-                Rank triplet2 = hand2.getRankAtPosition(2);  // 获取三条的大小
-                if (triplet1 > triplet2) {
+                Rank three1 = hand1[2].getRank();  // 获取三条的大小
+                Rank three2 = hand2[2].getRank();  // 获取三条的大小
+                if (three1 > three2) {
                     return 1;  // hand1胜出
-                } else if (triplet1 < triplet2) {
+                } else if (three1 < three2) {
                     return -1; // hand2胜出
                 } else {
-                    Rank pair1 = hand1.getRankAtPosition(1);  // 获取对子的大小
-                    Rank pair2 = hand2.getRankAtPosition(1);  // 获取对子的大小
+                    Rank pair1 = hand1[4].getRank();  // 获取对子的大小
+                    Rank pair2 = hand2[4].getRank();  // 获取对子的大小
                     if (pair1 > pair2) {
                         return 1;  // hand1胜出
                     } else if (pair1 < pair2) {
@@ -382,16 +369,16 @@ int PokerHand::compareHands(const PokerHand& hand1, const PokerHand& hand2) {
 
             case HandType::FOUR_OF_A_KIND: {
                 // 比较四条的大小
-               Rank quad1 = hand1.getRankAtPosition(2);  // 获取四条的大小
-                Rank quad2 = hand2.getRankAtPosition(2);  // 获取四条的大小
-                if (quad1 > quad2) {
+                Rank four1 = hand1[2].getRank();  // 获取四条的大小
+                Rank four2 = hand2[2].getRank();  // 获取四条的大小
+                if (four1 > four2) {
                     return 1;  // hand1胜出
-                } else if (quad1 < quad2) {
+                } else if (four1 < four2) {
                     return -1; // hand2胜出
                 } else {
-                    // 四条大小相同，比较剩余的一张牌
-                    Rank kicker1 = hand1.getRankAtPosition(4);  // 获取剩余的一张牌大小
-                    Rank kicker2 = hand2.getRankAtPosition(4);  // 获取剩余的一张牌大小
+                    // 四条大小相同，比较剩余的高牌
+                    Rank kicker1 = hand1[0].getRank();
+                    Rank kicker2 = hand2[0].getRank();
                     if (kicker1 > kicker2) {
                         return 1;  // hand1胜出
                     } else if (kicker1 < kicker2) {
@@ -402,13 +389,13 @@ int PokerHand::compareHands(const PokerHand& hand1, const PokerHand& hand2) {
                 }
             }
 
-            case HandType::STRAIGHT_FLUSH:{
-                // 顺子和同花顺比较规则与顺子相同，因为同花顺和皇家同花顺不存在相同牌型的情况
-                Rank highestRank1 = hand1.getHighestRank();
-                Rank highestRank2 = hand2.getHighestRank();
-                if (highestRank1 > highestRank2) {
+            case HandType::STRAIGHT_FLUSH: {
+                // 比较同花顺的大小，只需比较最大的一张牌
+                Rank highCard1 = hand1[4].getRank();
+                Rank highCard2 = hand2[4].getRank();
+                if (highCard1 > highCard2) {
                     return 1;  // hand1胜出
-                } else if (highestRank1 < highestRank2) {
+                } else if (highCard1 < highCard2) {
                     return -1; // hand2胜出
                 } else {
                     return 0;  // 平局
@@ -418,16 +405,17 @@ int PokerHand::compareHands(const PokerHand& hand1, const PokerHand& hand2) {
     }
 }
 
-std::vector<Card> PokerHand::getBestHand(const PokerHand& hand1, const PokerHand& hand2) {
+
+std::vector<Card> PokerHand::getBestHand(const std::vector<Card> &hand1, const std::vector<Card> &hand2) {
     std::vector<Card> allCards;
     allCards.reserve(7);
 
     // 将手中的两张牌和公共五张牌都添加到向量中
     for (int i = 0; i < 2; ++i) {
-        allCards.push_back(hand1.getCardAtPosition(i));
+        allCards.push_back(hand1[i]);
     }
     for (int i = 0; i < 5; ++i) {
-        allCards.push_back(hand2.getCardAtPosition(i));
+        allCards.push_back(hand2[i]);
     }
 
     // 尝试所有可能的组合并找到最佳手牌
@@ -459,7 +447,8 @@ std::vector<Card> PokerHand::getBestHand(const PokerHand& hand1, const PokerHand
     return bestHand;
 }
 
-bool PokerHand::isBetterHand(const std::vector<Card>& hand1, const std::vector<Card>& hand2) const {
+
+bool PokerHand::isBetterHand(const std::vector<Card> &hand1, const std::vector<Card> &hand2) {
     PokerHand pokerHand1(hand1);
     PokerHand pokerHand2(hand2);
 
@@ -511,20 +500,5 @@ bool PokerHand::isBetterHand(const std::vector<Card>& hand1, const std::vector<C
                 }
             }
             return false;
-
-        default:
-            // 无效手牌类型，可以根据实际情况进行处理
-            return false;
     }
-}
-
-Card PokerHand::getCardAtPosition(int position) const {
-    // 根据实际情况实现获取指定位置的牌的逻辑
-    // 返回对应位置的牌
-    if (position < 0 || position >= hand.size()) {
-        // 位置无效，可以抛出异常或者进行其他处理
-        // 这里假设返回一个无效的牌
-        return Card(Suit::UNKNOWN, Rank::UNKNOWN);
-    }
-    return hand[position];
 }

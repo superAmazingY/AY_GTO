@@ -7,51 +7,54 @@ int main() {
     deck.shuffle();
     std::cout << "Dealing cards..." << std::endl;
 
-    std::vector<Card> hand1;
-    std::vector<Card> hand2;
-    std::vector<Card> hand3;
+    std::vector<Card> player1;
+    std::vector<Card> player2;
+    std::vector<Card> commonCard;
 
+    // 发牌给玩家1
     for (int i = 0; i < 2; i++) {
         Card card1 = deck.dealCard();
-        hand1.push_back(card1);
+        player1.push_back(card1);
         std::cout << "Dealt card 1: " << card1.getRankString() << " of " << card1.getSuitString() << std::endl;
     }
-    for (int i = 0; i<2; i++) {
+
+    // 发牌给玩家2
+    for (int i = 0; i < 2; i++) {
         Card card2 = deck.dealCard();
-        hand2.push_back(card2);
+        player2.push_back(card2);
         std::cout << "Dealt card 2: " << card2.getRankString() << " of " << card2.getSuitString() << std::endl;
     }
 
-    for (int i = 0; i<5; i++) {
+    // 发公共牌
+    for (int i = 0; i < 5; i++) {
         Card card3 = deck.dealCard();
-        hand3.push_back(card3);
+        commonCard.push_back(card3);
         std::cout << "Dealt card 3: " << card3.getRankString() << " of " << card3.getSuitString() << std::endl;
     }
 
 
-    PokerHand pokerHand1(hand1);
-    PokerHand pokerHand2(hand2);
+    PokerHand pokerHand1(player1);
+    PokerHand pokerHand2(player2);
 
-    HandType handType1 = pokerHand1.getHandType();
-    HandType handType2 = pokerHand2.getHandType();
+    // 获取每个玩家的最佳手牌
+    std::vector<Card> player1BestHand = PokerHand::getBestHand(commonCard, player1);
+    std::vector<Card> player2BestHand = PokerHand::getBestHand(commonCard, player2);
 
-    pokerHand1.printHandType();
-    pokerHand2.printHandType();
+    PokerHand pokerHand3(player1BestHand);
+    PokerHand pokerHand4(player2BestHand);
+    // 打印最佳牌型的类型
+    pokerHand3.printHandType();
+    pokerHand4.printHandType();
 
-    if (handType1 > handType2) {
+    // 比较手牌大小
+    int result = PokerHand::compareHands(player1BestHand, player2BestHand);
+
+    if (result == 1) {
         std::cout << "Hand 1 wins!" << std::endl;
-    } else if (handType1 < handType2) {
+    } else if (result == -1) {
         std::cout << "Hand 2 wins!" << std::endl;
     } else {
-        int result = PokerHand::compareHands(pokerHand1, pokerHand2);
-
-        if (result == 1) {
-            std::cout << "Hand 1 wins!" << std::endl;
-        } else if (result == -1) {
-            std::cout << "Hand 2 wins!" << std::endl;
-        } else {
-            std::cout << "It's a tie!" << std::endl;
-        }
+        std::cout << "It's a tie!" << std::endl;
     }
     return 0;
 }
